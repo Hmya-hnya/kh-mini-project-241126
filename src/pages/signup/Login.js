@@ -1,101 +1,88 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import AxiosApi from "axios";
-import { Button, TextField } from "@material-ui/core";
+import imgLogo from "../../images/kakaoLion.png"; //이미지도 import하여야 사용 가능
+import Button from "../../components/ButtonComponent";
+import Input from "../../components/InputComponent";
+import { Container, Items } from "../../components/SignupComponent";
+import AxiosApi from "../../api/AxiosApi";
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #f5f5f5;
-`;
-
-const StyledTextField = styled(TextField)`
-  && {
-    margin-top: 10px;
-    width: 300px;
-  }
-`;
-
-const StyledButton = styled(Button)`
-  && {
-    margin-top: 20px;
-    width: 300px;
-  }
+const Img = styled.img`
+  width: 180px;
+  object-fit: cover;
 `;
 
 const Login = () => {
-  // 키보드 입력에 대한 상태관리
-
+  // State for inputs
   const [inputEmail, setInputEmail] = useState("");
   const [inputPw, setInputPw] = useState("");
 
-  // 간단한 유효성 검사
-  const [isEmail, setIsEmail] = useState(false);
+  const navigate = useNavigate();
+
+  // State for validation
+  const [isId, setIsId] = useState(false);
   const [isPw, setIsPw] = useState(false);
 
-  const navigate = useNavigate(); // 페이지 이동을 위한 객체 생성
-
-  const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-  const onChangeEmail = (e) => {
-    const email = e.target.value;
-    setInputEmail(email);
-    setIsEmail(emailRegex.test(email));
+  // Email and Password change handlers
+  const handleInputChange = (e, setState, setValidState) => {
+    setState(e.target.value);
+    setValidState(e.target.value.length >= 5);
   };
 
-  const passwordRegex =
-    /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-  const onChangePw = (e) => {
-    const password = e.target.value;
-    setInputPw(password);
-    setIsPw(passwordRegex.test(password));
-  };
-
-  const onClickLogin = async (e) => {
-    e.preventDefault();
-    // 로그인을 위해 axios호출
+  const onClickLogin = async () => {
     try {
-      const rsp = await AxiosApi.memberLogin(inputEmail, inputPw);
+      const rsp = await AxiosApi.login(inputEmail, inputPw);
       console.log(rsp.data);
       if (rsp.data) {
-        localStorage.setItem("email", inputEmail);
-        localStorage.setItem("isLogin", "TRUE");
         navigate("/home");
       } else {
-        // 서버의 응답을 줬지만 성공이 아닌 경우
-        alert("아이디 및 패스워드를 다시 확인 해 주세요.");
+        alert("아이디 및 패스워드가 틀립니다.");
       }
     } catch (e) {
-      // 서버가 응답하지 않는 경우
       alert("서버가 응답하지 않습니다.");
     }
   };
+
   return (
     <Container>
-      <StyledTextField
-        value={inputEmail}
-        placeholder="이메일"
-        onChange={onChangeEmail}
-      />
-      <br />
-      <StyledTextField
-        value={inputPw}
-        placeholder="비밀번호"
-        onChange={onChangePw}
-        type="password"
-      />
-      <br />
-      {isEmail && isPw ? (
-        <StyledButton onClick={onClickLogin}>확인</StyledButton>
-      ) : (
-        <StyledButton disabled onClick={onClickLogin}>
-          확인
-        </StyledButton>
-      )}
+      <Items variant="sign">
+        <Img src={imgLogo} alt="Logo" />
+      </Items>
+
+      <Items margin="10px">
+        <Input
+          placeholder="이메일"
+          value={inputEmail}
+          onChange={(e) => handleInputChange(e, setInputEmail, setIsId)}
+        />
+      </Items>
+
+      <Items margin="10px">
+        <Input
+          type="password"
+          placeholder="패스워드"
+          value={inputPw}
+          onChange={(e) => handleInputChange(e, setInputPw, setIsPw)}
+        />
+      </Items>
+
+      <Items margin="10px">
+        {isId && isPw ? (
+          <Button enabled onClick={onClickLogin}>
+            SIGN IN
+          </Button>
+        ) : (
+          <Button disabled>SIGN IN</Button>
+        )}
+      </Items>
+
+      <Items variant="signup">
+        <Link to="/Signup" className="link_style">
+          <span>Sign Up</span>
+        </Link>
+      </Items>
     </Container>
   );
 };
+
 export default Login;

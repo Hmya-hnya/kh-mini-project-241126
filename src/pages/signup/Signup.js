@@ -1,147 +1,98 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AxiosApi from "../../api/AxiosApi.js";
-import {
-  Input,
-  Button,
-  Container,
-  Items,
-} from "../../component/signup/LoginComponent";
+import Input from "../../components/InputComponent";
+import Button from "../../components/ButtonComponent";
+import { Container, Items } from "../../components/SignupComponent";
+import AxiosApi from "../../api/AxiosApi";
 
 const Signup = () => {
   const navigate = useNavigate();
+  // 키보드 입력
+  const [inputPw, setInputPw] = useState("");
+  const [inputConPw, setInputConPw] = useState("");
+  const [inputName, setInputName] = useState("");
+  const [inputEmail, setInputEmail] = useState("");
 
-  // 입력값 상태
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-    name: "",
-  });
+  // 오류 메시지
+  const [pwMessage, setPwMessage] = useState("");
+  const [conPwMessage, setConPwMessage] = useState("");
+  const [mailMessage, setMailMessage] = useState("");
 
-  // 검증 메시지 상태
-  const [validationMessages, setValidationMessages] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  // 유효성 검사
+  const [isMail, setIsMail] = useState(false);
+  const [isPw, setIsPw] = useState(false);
+  const [isConPw, setIsConPw] = useState(false);
+  const [isName, setIsName] = useState(false);
 
-  // 검증 상태
-  const [isValid, setIsValid] = useState({
-    email: false,
-    password: false,
-    confirmPassword: false,
-    name: false,
-  });
-
-  // 입력 변경 핸들러
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-    switch (name) {
-      case "email":
-        validateEmail(value);
-        break;
-      case "password":
-        validatePassword(value);
-        break;
-      case "confirmPassword":
-        validateConfirmPassword(value);
-        break;
-      case "name":
-        setIsValid((prevValid) => ({
-          ...prevValid,
-          name: value.trim().length > 0,
-        }));
-        break;
-      default:
-        break;
-    }
-  };
-
-  // 검증 함수
-  const validateEmail = (email) => {
+  const onChangeMail = (e) => {
+    setInputEmail(e.target.value);
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    if (!emailRegex.test(email)) {
-      setValidationMessages((prevMessages) => ({
-        ...prevMessages,
-        email: "이메일 형식이 올바르지 않습니다.",
-      }));
-      setIsValid((prevValid) => ({ ...prevValid, email: false }));
+    if (!emailRegex.test(e.target.value)) {
+      setMailMessage("이메일 형식이 올바르지 않습니다.");
+      setIsMail(false);
     } else {
-      memberRegCheck(email);
+      setMailMessage("올바른 형식 입니다.");
+      setIsMail(true);
+      // memberRegCheck(e.target.value);
     }
   };
-
-  const validatePassword = (password) => {
+  const onChangePw = (e) => {
+    //const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/
     const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,25}$/;
-    if (!passwordRegex.test(password)) {
-      setValidationMessages((prevMessages) => ({
-        ...prevMessages,
-        password: "숫자+영문자 조합으로 8자리 이상 입력해주세요!",
-      }));
-      setIsValid((prevValid) => ({ ...prevValid, password: false }));
+    const passwordCurrent = e.target.value;
+    setInputPw(passwordCurrent);
+    if (!passwordRegex.test(passwordCurrent)) {
+      setPwMessage("숫자+영문자 조합으로 8자리 이상 입력해주세요!");
+      setIsPw(false);
     } else {
-      setValidationMessages((prevMessages) => ({
-        ...prevMessages,
-        password: "안전한 비밀번호에요 : )",
-      }));
-      setIsValid((prevValid) => ({ ...prevValid, password: true }));
+      setPwMessage("안전한 비밀번호에요 : )");
+      setIsPw(true);
     }
   };
-
-  const validateConfirmPassword = (confirmPassword) => {
-    if (confirmPassword !== formData.password) {
-      setValidationMessages((prevMessages) => ({
-        ...prevMessages,
-        confirmPassword: "비밀 번호가 일치하지 않습니다.",
-      }));
-      setIsValid((prevValid) => ({ ...prevValid, confirmPassword: false }));
+  const onChangeConPw = (e) => {
+    const passwordCurrent = e.target.value;
+    setInputConPw(passwordCurrent);
+    if (passwordCurrent !== inputPw) {
+      setConPwMessage("비밀 번호가 일치하지 않습니다.");
+      setIsConPw(false);
     } else {
-      setValidationMessages((prevMessages) => ({
-        ...prevMessages,
-        confirmPassword: "비밀 번호가 일치 합니다. )",
-      }));
-      setIsValid((prevValid) => ({ ...prevValid, confirmPassword: true }));
+      setConPwMessage("비밀 번호가 일치 합니다. )");
+      setIsConPw(true);
     }
   };
-
+  const onChangeName = (e) => {
+    setInputName(e.target.value);
+    setIsName(true);
+  };
   // 회원 가입 여부 확인
   const memberRegCheck = async (email) => {
     try {
-      const resp = await AxiosApi.memberRegCheck(email);
+      const resp = await AxiosApi.regCheck(email);
+      console.log("가입 가능 여부 확인 : ", resp.data);
       if (resp.data === true) {
-        setValidationMessages((prevMessages) => ({
-          ...prevMessages,
-          email: "사용 가능한 이메일 입니다.",
-        }));
-        setIsValid((prevValid) => ({ ...prevValid, email: true }));
+        setMailMessage("사용 가능한 이메일 입니다.");
+        setIsMail(true);
       } else {
-        setValidationMessages((prevMessages) => ({
-          ...prevMessages,
-          email: "중복된 이메일 입니다.",
-        }));
-        setIsValid((prevValid) => ({ ...prevValid, email: false }));
+        setMailMessage("중복된 이메일 입니다.");
+        setIsMail(false);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
-
-  // 회원 가입 처리
-  const handleRegistration = async () => {
-    const { email, password, name } = formData;
+  const onClickLogin = async () => {
     try {
-      const memberReg = await AxiosApi.memberReg(email, password, name);
-      if (memberReg.data === true) {
+      const memberReg = await AxiosApi.signup(inputEmail, inputPw, inputName);
+      console.log(memberReg.data);
+      if (memberReg.data) {
         navigate("/");
       } else {
+        // setModalOpen(true);
+        // setModelText("회원 가입에 실패 했습니다.");
         alert("회원 가입에 실패 했습니다.");
       }
-    } catch (error) {
-      console.error(error);
-      alert("오류가 발생했습니다. 다시 시도해주세요.");
+    } catch (e) {
+      alert("서버가 응답하지 않습니다.");
     }
   };
 
@@ -151,71 +102,65 @@ const Signup = () => {
         <span>Sign Up</span>
       </Items>
 
-      <Items className="item2">
+      <Items variant="item2">
         <Input
           type="email"
-          name="email"
           placeholder="이메일"
-          value={formData.email}
-          onChange={handleInputChange}
+          value={inputEmail}
+          onChange={onChangeMail}
         />
-        {formData.email && (
-          <span className={`message ${isValid.email ? "success" : "error"}`}>
-            {validationMessages.email}
+      </Items>
+      <Items variant="hint">
+        {inputEmail.length > 0 && (
+          <span className={`message ${isMail ? "success" : "error"}`}>
+            {mailMessage}
           </span>
         )}
       </Items>
-
-      <Items className="item2">
+      <Items variant="item2">
         <Input
           type="password"
-          name="password"
           placeholder="패스워드"
-          value={formData.password}
-          onChange={handleInputChange}
+          value={inputPw}
+          onChange={onChangePw}
         />
-        {formData.password && (
-          <span className={`message ${isValid.password ? "success" : "error"}`}>
-            {validationMessages.password}
+      </Items>
+      <Items variant="hint">
+        {inputPw.length > 0 && (
+          <span className={`message ${isPw ? "success" : "error"}`}>
+            {pwMessage}
           </span>
         )}
       </Items>
-
-      <Items className="item2">
+      <Items variant="item2">
         <Input
           type="password"
-          name="confirmPassword"
           placeholder="패스워드 확인"
-          value={formData.confirmPassword}
-          onChange={handleInputChange}
+          value={inputConPw}
+          onChange={onChangeConPw}
         />
-        {formData.confirmPassword && (
-          <span
-            className={`message ${
-              isValid.confirmPassword ? "success" : "error"
-            }`}
-          >
-            {validationMessages.confirmPassword}
+      </Items>
+      <Items variant="hint">
+        {inputPw.length > 0 && (
+          <span className={`message ${isConPw ? "success" : "error"}`}>
+            {conPwMessage}
           </span>
         )}
       </Items>
-
-      <Items className="item2">
+      <Items variant="item2">
         <Input
           type="text"
-          name="name"
           placeholder="이름"
-          value={formData.name}
-          onChange={handleInputChange}
+          value={inputName}
+          onChange={onChangeName}
         />
       </Items>
 
-      <Items className="item2">
-        {isValid.email &&
-        isValid.password &&
-        isValid.confirmPassword &&
-        isValid.name ? (
-          <Button onClick={handleRegistration}>NEXT</Button>
+      <Items variant="item2">
+        {isMail && isPw && isConPw && isName ? (
+          <Button enabled onClick={onClickLogin}>
+            NEXT
+          </Button>
         ) : (
           <Button disabled>NEXT</Button>
         )}
@@ -223,5 +168,4 @@ const Signup = () => {
     </Container>
   );
 };
-
 export default Signup;
