@@ -33,7 +33,7 @@ const Signup = () => {
     } else {
       setMailMessage("올바른 형식 입니다.");
       setIsMail(true);
-      // memberRegCheck(e.target.value);
+      memberRegCheck(e.target.value);
     }
   };
   const onChangePw = (e) => {
