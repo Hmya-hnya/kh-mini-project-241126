@@ -7,7 +7,7 @@ const AxiosApi = {
     console.log("비밀번호: ", pw);
     const login = {
       email: email,
-      password: pw,
+      pwd: pw,
     };
     return await axios.post(KH_DOMAIN + "/auth/login", login);
   },
@@ -21,17 +21,31 @@ const AxiosApi = {
     console.log("이름: ", name);
     const member = {
       email: email,
-      password: pw,
+      pwd: pw,
       name: name,
+      imgPath: "",
     };
     return await axios.post(KH_DOMAIN + `/auth/signup`, member);
   },
+  // 전체 회원 조회
   memberList: async () => {
-    return await axios.get(KH_DOMAIN + "/auth/memberAll");
+    return await axios.get(KH_DOMAIN + "/members/memberList");
   },
   // 개별 회원 조회
   memberInfo: async (email) => {
-    return await axios.get(KH_DOMAIN + `/auth/${email}`);
+    return await axios.get(KH_DOMAIN + `/members/${email}`);
+  },
+  // 채팅방 목록 가져오기
+  chatList: async () => {
+    return await axios.get(KH_DOMAIN + "/chat/list");
+  },
+  // 채팅방 생성하기
+  chatCreate: async (email, name) => {
+    const chat = {
+      emial: email,
+      name: name,
+    };
+    return await axios.post(KH_DOMAIN + "/chat/new", chat);
   },
 };
 
