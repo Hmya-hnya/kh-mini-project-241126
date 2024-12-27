@@ -47,6 +47,10 @@ const AxiosApi = {
     };
     return await axios.post(KH_DOMAIN + "/chat/new", chat);
   },
+  // 개별 채팅방 정보 가져오기
+  chatDetail: async (roomId) => {
+    return await axios.get(KH_DOMAIN + `/chat/room/${roomId}`);
+  },
 };
 
 export default AxiosApi;
