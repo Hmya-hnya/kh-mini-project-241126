@@ -7,6 +7,7 @@ import Input from "../../components/InputComponent";
 import { Container, Items } from "../../components/SignupComponent";
 import AxiosApi from "../../api/AxiosApi";
 import Modal from "../../utils/Modal";
+import Commons from "../../utils/Common";
 
 const Img = styled.img`
   width: 180px;
@@ -47,10 +48,14 @@ const Login = () => {
   const onClickLogin = async () => {
     try {
       const rsp = await AxiosApi.login(inputEmail, inputPw);
-      localStorage.setItem("email", inputEmail);
-      localStorage.setItem("isLogin", "TRUE");
       console.log(rsp.data);
-      if (rsp.data) {
+      localStorage.setItem("email", inputEmail);
+
+      if (rsp.data.grantType === "Bearer") {
+        console.log("엑세스 토큰: ", rsp.data.accessToken);
+        console.log("리플레시 토큰: ", rsp.data.refreshToken);
+        Commons.setAccessToken(rsp.data.accessToken);
+        Commons.setRefreshToken(rsp.data.refreshToken);
         navigate("/home");
       } else {
         setModalOpen(true);

@@ -1,7 +1,9 @@
 import axios from "axios";
+import AxiosInstance from "./AxiosInstance";
 const KH_DOMAIN = "http://localhost:8111";
 
 const AxiosApi = {
+  // 로그인
   login: async (email, pw) => {
     console.log("이메일: ", email);
     console.log("비밀번호: ", pw);
@@ -15,10 +17,8 @@ const AxiosApi = {
   regCheck: async (email) => {
     return await axios.get(KH_DOMAIN + `/auth/exists/${email}`);
   },
+  // 회원가입
   signup: async (email, pw, name) => {
-    console.log("이메일: ", email);
-    console.log("비밀번호: ", pw);
-    console.log("이름: ", name);
     const member = {
       email: email,
       pwd: pw,
@@ -28,8 +28,9 @@ const AxiosApi = {
     return await axios.post(KH_DOMAIN + `/auth/signup`, member);
   },
   // 전체 회원 조회
-  memberList: async () => {
-    return await axios.get(KH_DOMAIN + "/members/memberList");
+  memberList: async (email) => {
+    // return await axios.get(KH_DOMAIN + "/members/memberList");
+    return await AxiosInstance.get("/members/memberList");
   },
   // 개별 회원 조회
   memberInfo: async (email) => {
