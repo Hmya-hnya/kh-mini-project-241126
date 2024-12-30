@@ -28,13 +28,13 @@ const AxiosApi = {
     return await axios.post(KH_DOMAIN + `/auth/signup`, member);
   },
   // 전체 회원 조회
-  memberList: async (email) => {
+  memberList: async () => {
     // return await axios.get(KH_DOMAIN + "/members/memberList");
     return await AxiosInstance.get("/members/memberList");
   },
   // 개별 회원 조회
   memberInfo: async (email) => {
-    return await axios.get(KH_DOMAIN + `/members/${email}`);
+    return await AxiosInstance.get(KH_DOMAIN + `/members/${email}`);
   },
   // 채팅방 목록 가져오기
   chatList: async () => {
